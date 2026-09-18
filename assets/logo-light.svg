@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="220" height="64" viewBox="0 0 220 64">
+  <g transform="translate(2,4) scale(1.1667)">
+    <circle cx="9" cy="37" r="3" fill="#4d8dff" opacity="0.35"/>
+    <circle cx="18" cy="29" r="4.2" fill="#4d8dff" opacity="0.55"/>
+    <circle cx="28.5" cy="20" r="5.6" fill="#4d8dff" opacity="0.78"/>
+    <circle cx="39" cy="10" r="7" fill="#4d8dff"/>
+  </g>
+  <text x="68" y="45" font-family="'Segoe UI',system-ui,-apple-system,sans-serif"
+        font-size="40" font-weight="700" fill="#1f2328">iz<tspan fill="#2d5bbf">ci</tspan></text>
+</svg>

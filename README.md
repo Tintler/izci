@@ -1,4 +1,9 @@
-# İzci
+<div align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/logo-dark.svg">
+    <img src="assets/logo-light.svg" alt="İzci" width="220">
+  </picture>
+</div>
 
 ![izci preview](preview.jpg)
 
