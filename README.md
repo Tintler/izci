@@ -50,4 +50,4 @@ npm start
 
 ## License
 
-Not yet specified.
+MIT
