@@ -42,7 +42,10 @@
 
       <!-- Ana ekran: yalnizca indekslenen diskler -->
       <div id="viewDrives" class="view">
-        <h2 class="page" data-i18n="drives.title">Diskler</h2>
+        <div class="page-head">
+          <h2 class="page" data-i18n="drives.title">Diskler</h2>
+          <button class="btn icon-only" id="viewToggleDrives" data-i18n-attr="title:view.toCompact,aria-label:view.toCompact"></button>
+        </div>
         <div class="sub" data-i18n="drives.sub">Yalnızca indekslediğin diskler burada görünür.</div>
         <div class="totals" id="driveTotals"></div>
         <div class="view-scroll">
@@ -53,7 +56,10 @@
 
       <!-- Disk ekle: bagli tum diskler -->
       <div id="viewAdd" class="view hidden">
-        <h2 class="page" data-i18n="add.title">Disk ekle</h2>
+        <div class="page-head">
+          <h2 class="page" data-i18n="add.title">Disk ekle</h2>
+          <button class="btn icon-only" id="viewToggleAdd" data-i18n-attr="title:view.toCompact,aria-label:view.toCompact"></button>
+        </div>
         <div class="sub" data-i18n="add.sub">Bağlı diskler. İndekslemek istediklerini işaretle.</div>
         <div class="view-scroll">
           <div id="allList" class="grid"></div>
@@ -113,6 +119,18 @@
     <div class="modal-actions">
       <button class="btn" id="labelCancel" data-i18n="modal.cancel">İptal</button>
       <button class="btn primary" id="labelSave" data-i18n="modal.save">Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<!-- Genel onay modali (or. indekslemeyi kapatma) -->
+<div id="confirmModal" class="modal-backdrop hidden">
+  <div class="modal">
+    <div class="modal-title" id="confirmTitle"></div>
+    <div class="modal-sub" id="confirmBody"></div>
+    <div class="modal-actions">
+      <button class="btn" id="confirmCancel" data-i18n="modal.cancel">İptal</button>
+      <button class="btn primary" id="confirmOk" data-i18n="modal.confirm">Onayla</button>
     </div>
   </div>
 </div>

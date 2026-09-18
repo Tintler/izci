@@ -17,6 +17,11 @@ const STRINGS = {
     'nav.browse': 'Gezinti',
     'nav.search': 'Arama',
 
+    'view.compact': 'Kompakt',
+    'view.normal': 'Normal',
+    'view.toCompact': 'Kompakt görünüme geç',
+    'view.toNormal': 'Normal görünüme geç',
+
     'drives.title': 'Diskler',
     'drives.sub': 'Yalnızca indekslediğin diskler burada görünür.',
     'drives.empty': 'Henüz indekslenen disk yok. “Disk ekle”den başla.',
@@ -27,6 +32,7 @@ const STRINGS = {
     'add.empty': 'Bağlı disk bulunamadı. “Yenile”ye bas.',
 
     'browse.back': '← Geri',
+    'browse.atRoot': 'En üst dizindesin',
     'browse.empty': 'Bu klasör boş ya da indekslenmemiş.',
 
     'search.title': 'Arama',
@@ -67,6 +73,9 @@ const STRINGS = {
     'modal.placeholder': 'Örn. Yedek 4TB',
     'modal.cancel': 'İptal',
     'modal.save': 'Kaydet',
+    'modal.confirm': 'Onayla',
+    'confirm.disableTitle': 'İndekslemeyi kapat?',
+    'confirm.disableBody': '“{label}” artık ana ekranda görünmeyecek. Kayıtlı indeks verisi silinmez; yeniden açtığında geri gelir.',
 
     'kind.folder': 'Klasör',
     'kind.file': 'Dosya',
@@ -85,6 +94,11 @@ const STRINGS = {
     'nav.browse': 'Browse',
     'nav.search': 'Search',
 
+    'view.compact': 'Compact',
+    'view.normal': 'Normal',
+    'view.toCompact': 'Switch to compact view',
+    'view.toNormal': 'Switch to normal view',
+
     'drives.title': 'Drives',
     'drives.sub': 'Only the drives you indexed appear here.',
     'drives.empty': 'No indexed drives yet. Start from “Add drive”.',
@@ -95,6 +109,7 @@ const STRINGS = {
     'add.empty': 'No connected drives found. Press “Refresh”.',
 
     'browse.back': '← Back',
+    'browse.atRoot': 'You are at the top level',
     'browse.empty': 'This folder is empty or not indexed.',
 
     'search.title': 'Search',
@@ -135,6 +150,9 @@ const STRINGS = {
     'modal.placeholder': 'e.g. Backup 4TB',
     'modal.cancel': 'Cancel',
     'modal.save': 'Save',
+    'modal.confirm': 'Confirm',
+    'confirm.disableTitle': 'Turn off indexing?',
+    'confirm.disableBody': '“{label}” will no longer appear on the main screen. The stored index is not deleted; it comes back if you re-enable it.',
 
     'kind.folder': 'Folder',
     'kind.file': 'File',

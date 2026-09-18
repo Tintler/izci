@@ -82,6 +82,9 @@ aside {
 .view { display: flex; flex-direction: column; height: 100%; min-height: 0; }
 .view-scroll { flex: 1; overflow-y: auto; min-height: 0; }
 h2.page { margin: 0 0 4px; font-size: 19px; flex-shrink: 0; }
+.page-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.page-head .btn { padding: 5px 12px; font-size: 12px; }
+.btn.icon-only { display: inline-flex; align-items: center; justify-content: center; padding: 6px; }
 .sub { color: var(--muted); font-size: 13px; margin-bottom: 18px; flex-shrink: 0; }
 .totals {
   display: flex; gap: 22px; flex-wrap: wrap; flex-shrink: 0;
@@ -91,6 +94,17 @@ h2.page { margin: 0 0 4px; font-size: 19px; flex-shrink: 0; }
 .totals .t-item { color: var(--muted); }
 .totals .t-item b { color: var(--text); font-weight: 600; }
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }
+
+/* Kompakt gorunum: daha kucuk kartlar, tek satir */
+.grid.compact-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
+.card.compact { padding: 12px 14px; }
+.compact-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.compact-label { font-weight: 600; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.compact-pct { margin-left: auto; font-size: 13px; font-weight: 600; color: var(--accent); flex-shrink: 0; }
+.compact-bar { margin: 0; }
+.dot-inline { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.dot-inline.on { background: var(--ok); }
+.dot-inline.off { background: var(--off); }
 .empty { color: var(--muted); font-size: 13px; margin-top: 24px; }
 .hidden { display: none !important; }
 
@@ -217,3 +231,7 @@ h2.page { margin: 0 0 4px; font-size: 19px; flex-shrink: 0; }
 .crumb .seg:hover { background: var(--panel-2); color: var(--text); }
 .crumb .sep { opacity: .5; }
 .crumb .seg.current { color: var(--text); font-weight: 600; cursor: default; }
+
+/* Pasif buton (or. kok dizinde Back) */
+.btn:disabled { opacity: .45; cursor: default; }
+.btn:disabled:hover { border-color: var(--border); }

@@ -33,9 +33,15 @@ const browseSpacer = document.getElementById('browseSpacer');
 const browseRows = document.getElementById('browseRows');
 const browseEmpty = document.getElementById('browseEmpty');
 const driveTotals = document.getElementById('driveTotals');
+const viewToggleDrives = document.getElementById('viewToggleDrives');
+const viewToggleAdd = document.getElementById('viewToggleAdd');
 
 const LANG_KEY = 'izci.lang';
 let lang = resolveLang(localStorage.getItem(LANG_KEY) || DEFAULT_LANG);
+
+// Gorunum modu: 'normal' (acik kartlar) | 'compact' (sade kartlar).
+// Uygulama her acilista Normal baslar (kalici degil).
+let viewMode = 'normal';
 
 // Ceviri kisayolu (aktif dil).
 function tr(key, params) {
@@ -77,8 +83,10 @@ function setLang(next) {
   }
   if (lastBrowseRows !== null) {
     browseList.setItems(lastBrowseRows, browseRowHtml, onBrowseRowClick);
+    updateBrowseBack(browseState.parentId);
     renderCrumb(browseState.parentId, browseState.driveLabel);
   }
+  updateViewMode();
 }
 
 let currentView = 'drives';
@@ -128,6 +136,37 @@ function askLabel(drive) {
   });
 }
 
+// Genel onay modali. Onayla -> true, Iptal/arka plan/Esc -> false.
+const confirmModal = document.getElementById('confirmModal');
+const confirmTitle = document.getElementById('confirmTitle');
+const confirmBody = document.getElementById('confirmBody');
+
+function askConfirm(title, body) {
+  return new Promise((resolve) => {
+    confirmTitle.textContent = title;
+    confirmBody.textContent = body;
+    confirmModal.classList.remove('hidden');
+    document.getElementById('confirmOk').focus();
+
+    function cleanup() {
+      confirmModal.classList.add('hidden');
+      document.getElementById('confirmOk').removeEventListener('click', onOk);
+      document.getElementById('confirmCancel').removeEventListener('click', onCancel);
+      confirmModal.removeEventListener('click', onBackdrop);
+      document.removeEventListener('keydown', onKey);
+    }
+    function onOk() { cleanup(); resolve(true); }
+    function onCancel() { cleanup(); resolve(false); }
+    function onBackdrop(e) { if (e.target === confirmModal) onCancel(); }
+    function onKey(e) { if (e.key === 'Escape') onCancel(); }
+
+    document.getElementById('confirmOk').addEventListener('click', onOk);
+    document.getElementById('confirmCancel').addEventListener('click', onCancel);
+    confirmModal.addEventListener('click', onBackdrop);
+    document.addEventListener('keydown', onKey);
+  });
+}
+
 function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, (c) =>
     ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])
@@ -145,17 +184,29 @@ function driveCard(d, { inAddView }) {
   const pct = usedPercent(d.usedBytes, d.totalBytes);
   const label = d.customLabel || d.volumeLabel || tr('card.noLabel');
   const el = document.createElement('div');
-  el.className = 'card' + (d.connected ? '' : ' offline');
+  const compact = viewMode === 'compact';
+  el.className = 'card' + (d.connected ? '' : ' offline') + (compact ? ' compact' : '');
   const statusClass = d.connected ? 'on' : 'off';
   const statusText = d.connected ? tr('card.connected') : tr('card.disconnected');
 
-  el.innerHTML = `
-    <div class="status ${statusClass}"><span class="dot"></span> ${statusText}</div>
+  // Kompakt modda yalnizca ad + doluluk yuzdesi (ve kucuk bar) gorunur.
+  // Detaylar (indeks, etiket, tarama) yalnizca normal modda.
+  // Statu, satir icinde kucuk nokta olarak gosterilir (mutlak konum cakismasi yok).
+  const compactHead = `
+    <div class="compact-row">
+      <span class="dot-inline ${statusClass}" title="${statusText}"></span>
+      <span class="compact-label" title="${escapeHtml(label)}">${escapeHtml(label)}</span>
+      ${d.connected ? `<span class="letter">${escapeHtml(d.currentLetter || '—')}</span>` : ''}
+      <span class="compact-pct">${pct.toFixed(0)}%</span>
+    </div>
+    <div class="bar compact-bar"><i style="width:${pct.toFixed(1)}%"></i></div>`;
+
+  const fullBody = `
     <div class="card-head">
       <div class="drive-ic">${diskIconSvg()}</div>
       <div>
         <div class="card-title">${escapeHtml(label)}
-          <span class="letter">${escapeHtml(d.currentLetter || '—')}</span></div>
+          ${d.connected ? `<span class="letter">${escapeHtml(d.currentLetter || '—')}</span>` : ''}</div>
         <div class="card-sub">${escapeHtml(d.fsType || '')}</div>
       </div>
     </div>
@@ -176,10 +227,34 @@ function driveCard(d, { inAddView }) {
       </div>
     </div>`;
 
+  const statusBadge = `<div class="status ${statusClass}"><span class="dot"></span> ${statusText}</div>`;
+  if (compact) {
+    el.innerHTML = compactHead;
+    if (d.indexed) {
+      el.classList.add('clickable-card');
+      el.addEventListener('click', () => {
+        const lab = d.customLabel || d.volumeLabel || tr('common.root');
+        openFolder(d.hwId, null, lab);
+      });
+    }
+    return el;
+  }
+
+  el.innerHTML = statusBadge + fullBody;
+
   const sw = el.querySelector('.switch');
   sw.addEventListener('click', async (e) => {
     e.stopPropagation();
     const next = !sw.classList.contains('on');
+    // Indekslemeyi KAPATMAK veri kaybi gibi gorunebilir; once onay iste.
+    if (!next) {
+      const label = d.customLabel || d.volumeLabel || tr('card.noLabel');
+      const ok = await askConfirm(
+        tr('confirm.disableTitle'),
+        tr('confirm.disableBody', { label })
+      );
+      if (!ok) return; // kullanici iptal etti; toggle degismez
+    }
     sw.classList.toggle('on', next);
     await api.setIndexed(d.hwId, next);
     await refreshAll();
@@ -234,6 +309,43 @@ function render(listEl, emptyEl, drives, opts) {
   listEl.innerHTML = '';
   emptyEl.style.display = drives.length === 0 ? '' : 'none';
   for (const d of drives) listEl.appendChild(driveCard(d, opts));
+}
+
+// Gorunum modu butonlarinin ikonunu, tooltip'ini ve grid sinifini gunceller.
+// Normal mod -> expand_all ikonu (acik kartlara gec);
+// Kompakt mod -> collapse_all ikonu (sade kartlara gec).
+const VIEW_ICON_PATHS = {
+  expand:
+    'M480-80 240-320l57-57 183 183 183-183 57 57L480-80ZM298-584l-58-56 240-240 240 240-58 56-182-182-182 182Z',
+  collapse:
+    'm296-80-56-56 240-240 240 240-56 56-184-184L296-80Zm184-504L240-824l56-56 184 184 184-184 56 56-240 240Z',
+};
+
+function viewIconSvg(kind) {
+  return `<svg viewBox="0 -960 960 960" width="20" height="20" fill="currentColor"><path d="${VIEW_ICON_PATHS[kind]}"/></svg>`;
+}
+
+function updateViewMode() {
+  const compact = viewMode === 'compact';
+  const iconKind = compact ? 'collapse' : 'expand';
+  const titleKey = compact ? 'view.toNormal' : 'view.toCompact';
+  for (const btn of [viewToggleDrives, viewToggleAdd]) {
+    btn.innerHTML = viewIconSvg(iconKind);
+    btn.title = tr(titleKey);
+    btn.setAttribute('aria-label', tr(titleKey));
+  }
+  driveList.classList.toggle('compact-grid', compact);
+  allList.classList.toggle('compact-grid', compact);
+}
+
+function toggleViewMode() {
+  viewMode = viewMode === 'compact' ? 'normal' : 'compact';
+  updateViewMode();
+  refreshAll();
+}
+
+for (const btn of [viewToggleDrives, viewToggleAdd]) {
+  btn.addEventListener('click', toggleViewMode);
 }
 
 async function refreshAll() {
@@ -467,7 +579,15 @@ async function openFolder(hwId, parentId, driveLabel) {
   lastBrowseRows = rows;
   browseEmpty.classList.toggle('hidden', rows.length > 0);
   browseList.setItems(rows, browseRowHtml, onBrowseRowClick);
+  updateBrowseBack(parentId);
   await renderCrumb(parentId, driveLabel);
+}
+
+// En ust dizinde geri gidilecek yer yok; Back pasif olur (kullaniciyi yaniltmaz).
+function updateBrowseBack(parentId) {
+  const atRoot = parentId === null || parentId === undefined;
+  browseBack.disabled = atRoot;
+  browseBack.title = atRoot ? tr('browse.atRoot') : '';
 }
 
 async function renderCrumb(parentId, driveLabel) {
@@ -556,6 +676,7 @@ function setupColumnResizers() {
 }
 
 browseBack.addEventListener('click', () => {
+  if (browseBack.disabled) return;
   if (browseState.parentId === null || browseState.parentId === undefined) return;
   api.folderBreadcrumb(browseState.parentId).then((chain) => {
     const parent = chain.length >= 2 ? chain[chain.length - 2].id : null;
@@ -613,6 +734,7 @@ searchInput.addEventListener('input', () => {
 
 // Ilk cizim.
 applyStaticTranslations();
+updateViewMode();
 refreshAll().catch((err) => {
   empty.textContent = tr('drives.loadFailed');
   console.error(err);
