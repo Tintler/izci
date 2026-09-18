@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>İzci</title>
+<link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="logo" title="İzci">
+      <svg class="logo-mark" viewBox="0 0 48 48" width="26" height="26" aria-hidden="true">
+        <circle cx="9" cy="37" r="3" fill="#4d8dff" opacity="0.35"></circle>
+        <circle cx="18" cy="29" r="4.2" fill="#4d8dff" opacity="0.55"></circle>
+        <circle cx="28.5" cy="20" r="5.6" fill="#4d8dff" opacity="0.78"></circle>
+        <circle cx="39" cy="10" r="7" fill="#4d8dff"></circle>
+      </svg>
+      <span class="logo-text">iz<b>ci</b></span>
+    </div>
+    <div class="searchwrap">
+      <input id="search" type="text" data-i18n-attr="placeholder:topbar.searchPlaceholder">
+    </div>
+    <div class="spacer"></div>
+    <span class="admin-badge" id="adminBadge" data-i18n="topbar.admin">● Yönetici</span>
+    <select class="btn lang-select" id="langSelect" title="Language">
+      <option value="tr">TR</option>
+      <option value="en">EN</option>
+    </select>
+    <button class="btn" id="refreshBtn" data-i18n="topbar.refresh">Yenile</button>
+  </header>
+  <main>
+    <aside>
+      <div class="navitem active" data-view="drives"><span class="ic">
+        <svg viewBox="0 -960 960 960" width="18" height="18" fill="currentColor"><path d="M240-80q-33 0-56.5-23.5T160-160v-640q0-33 23.5-56.5T240-880h480q33 0 56.5 23.5T800-800v640q0 33-23.5 56.5T720-80H240Zm0-80h480v-640H240v640Zm80-80h320v-80H320v80Zm160-160q66 0 113-47t47-113q0-66-47-113t-113-47q-66 0-113 47t-47 113q0 66 47 113t113 47Zm0-120q-17 0-28.5-11.5T440-560q0-17 11.5-28.5T480-600q17 0 28.5 11.5T520-560q0 17-11.5 28.5T480-520Zm0-40Z"/></svg>
+      </span> <span data-i18n="nav.drives">Diskler</span></div>
+      <div class="navitem" data-view="add"><span class="ic">＋</span> <span data-i18n="nav.add">Disk ekle</span></div>
+      <div class="navitem" data-view="browse"><span class="ic">🗀</span> <span data-i18n="nav.browse">Gezinti</span></div>
+      <div class="navitem" data-view="search"><span class="ic">⌕</span> <span data-i18n="nav.search">Arama</span></div>
+    </aside>
+    <section class="content">
+
+      <!-- Ana ekran: yalnizca indekslenen diskler -->
+      <div id="viewDrives" class="view">
+        <h2 class="page" data-i18n="drives.title">Diskler</h2>
+        <div class="sub" data-i18n="drives.sub">Yalnızca indekslediğin diskler burada görünür.</div>
+        <div class="totals" id="driveTotals"></div>
+        <div class="view-scroll">
+          <div id="driveList" class="grid"></div>
+          <div id="empty" class="empty" data-i18n="drives.empty">Henüz indekslenen disk yok. “Disk ekle”den başla.</div>
+        </div>
+      </div>
+
+      <!-- Disk ekle: bagli tum diskler -->
+      <div id="viewAdd" class="view hidden">
+        <h2 class="page" data-i18n="add.title">Disk ekle</h2>
+        <div class="sub" data-i18n="add.sub">Bağlı diskler. İndekslemek istediklerini işaretle.</div>
+        <div class="view-scroll">
+          <div id="allList" class="grid"></div>
+          <div id="emptyAll" class="empty" data-i18n="add.empty">Bağlı disk bulunamadı. “Yenile”ye bas.</div>
+        </div>
+      </div>
+
+      <!-- Klasor gezintisi -->
+      <div id="viewBrowse" class="view hidden">
+        <div class="browse-top">
+          <button class="btn" id="browseBack" data-i18n="browse.back">← Geri</button>
+          <div class="crumb" id="browseCrumb"></div>
+        </div>
+        <div id="browseWrap" class="res-wrap">
+          <div class="res-head">
+            <span class="sortable" data-sort="name"><span data-i18n="col.name">Ad</span><i class="col-resizer" data-col="0"></i></span>
+            <span class="sortable" data-sort="kind"><span data-i18n="col.kind">Tür</span><i class="col-resizer" data-col="1"></i></span>
+            <span><span data-i18n="col.path">Yol</span><i class="col-resizer" data-col="2"></i></span>
+            <span class="sortable" data-sort="size"><span data-i18n="col.size">Boyut</span></span>
+          </div>
+          <div id="browseViewport" class="res-viewport">
+            <div id="browseSpacer" class="res-spacer"></div>
+            <div id="browseRows" class="res-rows"></div>
+          </div>
+        </div>
+        <div id="browseEmpty" class="empty hidden" data-i18n="browse.empty">Bu klasör boş ya da indekslenmemiş.</div>
+      </div>
+
+      <!-- Arama -->
+      <div id="viewSearch" class="view hidden">
+        <h2 class="page" data-i18n="search.title">Arama</h2>
+        <div class="sub" id="searchSummary" data-i18n="search.hint">Üstteki kutuya yazıp Enter'a bas.</div>
+        <div id="resultWrap" class="res-wrap hidden">
+          <div class="res-head">
+            <span class="sortable" data-sort="name"><span data-i18n="col.name">Ad</span><i class="col-resizer" data-col="0"></i></span>
+            <span><span data-i18n="col.disk">Disk</span><i class="col-resizer" data-col="1"></i></span>
+            <span><span data-i18n="col.path">Yol</span><i class="col-resizer" data-col="2"></i></span>
+            <span class="sortable" data-sort="size"><span data-i18n="col.size">Boyut</span></span>
+          </div>
+          <div id="resultViewport" class="res-viewport">
+            <div id="resultSpacer" class="res-spacer"></div>
+            <div id="resultRows" class="res-rows"></div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+  </main>
+</div>
+
+<!-- Etiket duzenleme modali (window.prompt Electron'da calismaz) -->
+<div id="labelModal" class="modal-backdrop hidden">
+  <div class="modal">
+    <div class="modal-title" data-i18n="modal.title">Disk etiketi</div>
+    <div class="modal-sub" id="labelModalSub"></div>
+    <input id="labelInput" type="text" maxlength="64" data-i18n-attr="placeholder:modal.placeholder">
+    <div class="modal-actions">
+      <button class="btn" id="labelCancel" data-i18n="modal.cancel">İptal</button>
+      <button class="btn primary" id="labelSave" data-i18n="modal.save">Kaydet</button>
+    </div>
+  </div>
+</div>
+<script type="module" src="./main.js"></script>
+</body>
+</html>

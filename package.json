@@ -1,0 +1,42 @@
+{
+  "name": "izci",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Harici HDD icerik indeksleyici (Electron + SQLite)",
+  "type": "module",
+  "main": "src/main/main.js",
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "scripts": {
+    "test": "node --test",
+    "build": "vite build",
+    "start": "electron .",
+    "dev": "vite",
+    "dist": "vite build && electron-builder"
+  },
+  "devDependencies": {
+    "electron": "^44.4.0",
+    "vite": "^8.2.0",
+    "electron-builder": "^26.0.0"
+  },
+  "build": {
+    "appId": "com.izci.app",
+    "productName": "Izci",
+    "artifactName": "izci.${ext}",
+    "files": [
+      "src/**/*",
+      "dist/**/*",
+      "build/izci.ico",
+      "build/izci-mark-256.png",
+      "package.json"
+    ],
+    "win": {
+      "target": "portable",
+      "icon": "build/izci.ico"
+    },
+    "directories": {
+      "output": "release"
+    }
+  }
+}
