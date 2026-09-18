@@ -6,6 +6,7 @@ import {
   buildFtsQuery,
   searchEntries,
   dirName,
+  driveLabeledDir,
 } from '../src/core/search.js';
 
 function setup({ ftsAvailable }) {
@@ -118,8 +119,35 @@ test('dirName: ileri slash da desteklenir', () => {
 test('searchEntries: sonucta dir alani dosya adini icermez', () => {
   const { db, ftsAvailable } = setup({ ftsAvailable: undefined });
   const res = searchEntries(db, { query: 'belgesel', ftsAvailable });
-  assert.equal(res[0].dir, 'F:\\Medya');
+  assert.equal(res[0].dir, 'Film Arsivi\\Medya');
   assert.ok(!res[0].dir.includes('belgesel'));
+});
+
+test('searchEntries: dir surucu harfi yerine disk etiketini gosterir', () => {
+  const { db, ftsAvailable } = setup({ ftsAvailable: undefined });
+  const res = searchEntries(db, { query: 'notes', ftsAvailable });
+  // Kok seviyedeki dosya: "F:\\" -> "Film Arsivi\\"
+  assert.equal(res[0].dir, 'Film Arsivi\\');
+});
+
+test('driveLabeledDir: basdaki harfi etiketle degistirir', () => {
+  assert.equal(driveLabeledDir('F:\\Medya', 'K-5'), 'K-5\\Medya');
+  assert.equal(driveLabeledDir('F:\\Medya\\Alt', 'K-5'), 'K-5\\Medya\\Alt');
+});
+
+test('driveLabeledDir: kok dizinde etiket + ters slash', () => {
+  assert.equal(driveLabeledDir('F:\\', 'K-5'), 'K-5\\');
+});
+
+test('driveLabeledDir: etiket yoksa harf korunur', () => {
+  assert.equal(driveLabeledDir('F:\\Medya', ''), 'F:\\Medya');
+  assert.equal(driveLabeledDir('F:\\Medya', null), 'F:\\Medya');
+  assert.equal(driveLabeledDir('F:\\Medya', undefined), 'F:\\Medya');
+});
+
+test('driveLabeledDir: etiket kirpilir, yol degismezse aynen doner', () => {
+  assert.equal(driveLabeledDir('F:\\Medya', '  K-5  '), 'K-5\\Medya');
+  assert.equal(driveLabeledDir('Medya', 'K-5'), 'Medya'); // harf yok
 });
 
 test('searchEntries: klasorler dosyalardan once gelir', () => {

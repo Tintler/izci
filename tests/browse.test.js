@@ -62,7 +62,14 @@ test('listChildren: dir alani dosya adini icermez', () => {
   const { db, medya } = setup();
   const rows = listChildren(db, 'D1', medya);
   const film = rows.find((r) => r.name === 'film.mkv');
-  assert.equal(film.dir, 'F:\\Medya');
+  assert.equal(film.dir, 'Film Arsivi\\Medya');
+});
+
+test('listChildren: dir surucu harfi yerine disk etiketini gosterir', () => {
+  const { db } = setup();
+  const rows = listChildren(db, 'D1', null);
+  const notes = rows.find((r) => r.name === 'notes.txt');
+  assert.equal(notes.dir, 'Film Arsivi\\');
 });
 
 test('breadcrumb: kokten hedefe zincir', () => {

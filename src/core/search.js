@@ -42,6 +42,18 @@ export function dirName(p) {
   return parent;
 }
 
+// Basdaki surucu harfini ("F:") disk etiketiyle degistirir.
+// "F:\\Medya" + "K-5" -> "K-5\\Medya"; "F:\\" + "K-5" -> "K-5\\".
+// Etiket bos/yoksa veya yol bir surucu harfiyle baslamiyorsa yol aynen doner.
+export function driveLabeledDir(dir, label) {
+  const s = String(dir === null || dir === undefined ? '' : dir);
+  const m = /^([A-Za-z]:)([\s\S]*)$/.exec(s);
+  if (!m) return s;
+  const lab = label === null || label === undefined ? '' : String(label).trim();
+  if (lab === '') return s;
+  return lab + m[2];
+}
+
 const SELECT_COLUMNS = `
   e.id AS id, e.name AS name, e.path AS path, e.is_dir AS is_dir,
   e.size AS size, e.hw_id AS hw_id,
@@ -103,16 +115,17 @@ export function searchEntries(
 }
 
 function mapRow(row) {
+  const label = row.custom_label || row.volume_label || null;
   return {
     id: Number(row.id),
     name: row.name,
     path: row.path,
-    dir: dirName(row.path),
+    dir: driveLabeledDir(dirName(row.path), label),
     iconKind: iconKind(row.name, row.is_dir === 1),
     isDir: row.is_dir === 1,
     size: row.size === null ? null : Number(row.size),
     hwId: row.hw_id,
-    driveLabel: row.custom_label || row.volume_label || 'Etiketsiz disk',
+    driveLabel: label || 'Etiketsiz disk',
     letter: row.current_letter,
   };
 }

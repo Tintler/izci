@@ -2,7 +2,7 @@
 // Bir diskin kokunu veya bir klasorun cocuklarini listeler.
 
 import { iconKind } from './icons.js';
-import { dirName } from './search.js';
+import { dirName, driveLabeledDir } from './search.js';
 import { resolveOrderBy, sortByKind } from './sorting.js';
 
 const DEFAULT_LIMIT = 20000;
@@ -87,17 +87,18 @@ export function breadcrumb(db, entryId) {
 }
 
 function mapRow(row) {
+  const label = row.custom_label || row.volume_label || null;
   return {
     id: Number(row.id),
     name: row.name,
     path: row.path,
-    dir: dirName(row.path),
+    dir: driveLabeledDir(dirName(row.path), label),
     iconKind: iconKind(row.name, row.is_dir === 1),
     isDir: row.is_dir === 1,
     size: row.size === null ? null : Number(row.size),
     mtime: row.mtime,
     hwId: row.hw_id,
-    driveLabel: row.custom_label || row.volume_label || 'Etiketsiz disk',
+    driveLabel: label || 'Etiketsiz disk',
     letter: row.current_letter,
   };
 }
