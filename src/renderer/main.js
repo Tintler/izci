@@ -394,6 +394,11 @@ api.onIndexProgress((p) => {
   note.textContent = p.done ? tr('card.scanComplete') : tr('card.scanning', { n: p.scanned });
 });
 
+// Disk takilip/cikarilinca main tarama yapar; burada yalnizca yeniden cizilir.
+api.onDrivesChanged(() => {
+  refreshAll().catch((err) => console.error(err));
+});
+
 refreshBtn.addEventListener('click', async () => {
   refreshBtn.disabled = true;
   refreshBtn.textContent = tr('topbar.refreshing');
@@ -739,3 +744,7 @@ refreshAll().catch((err) => {
   empty.textContent = tr('drives.loadFailed');
   console.error(err);
 });
+// Uygulama kapaliyken takilan/cikarilan diskler icin acilista bir kez tara.
+api.scanDrives()
+  .then(() => refreshAll())
+  .catch((err) => console.error(err));

@@ -6,6 +6,7 @@ const CH = {
   DRIVE_LIST_INDEXED: 'drive:listIndexed',
   DRIVE_LIST_ALL: 'drive:listAll',
   DRIVE_SCAN: 'drive:scan',
+  DRIVES_CHANGED: 'drive:changed',
   DRIVE_SET_INDEXED: 'drive:setIndexed',
   DRIVE_SET_LABEL: 'drive:setLabel',
   INDEX_START: 'index:start',
@@ -26,6 +27,11 @@ contextBridge.exposeInMainWorld('izci', {
     const handler = (_e, payload) => cb(payload);
     ipcRenderer.on(CH.INDEX_PROGRESS, handler);
     return () => ipcRenderer.removeListener(CH.INDEX_PROGRESS, handler);
+  },
+  onDrivesChanged: (cb) => {
+    const handler = () => cb();
+    ipcRenderer.on(CH.DRIVES_CHANGED, handler);
+    return () => ipcRenderer.removeListener(CH.DRIVES_CHANGED, handler);
   },
   search: (query, sortBy, desc) => ipcRenderer.invoke(CH.SEARCH, query, sortBy, desc),
   listFolder: (hwId, parentId, sortBy, desc) =>

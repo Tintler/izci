@@ -19,6 +19,7 @@ import { indexDrive } from './indexRunner.js';
 import { searchEntries } from '../core/search.js';
 import { listChildren, breadcrumb } from '../core/browse.js';
 import { CHANNELS } from '../shared/channels.js';
+import { WM_DEVICECHANGE, isDriveChangeEvent, createCoalescer } from '../core/deviceChange.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 // Proje koku: src/main -> ../../
@@ -70,6 +71,30 @@ function createWindow() {
   } else {
     win.loadFile(join(__dirname, '../../dist/renderer/index.html'));
   }
+
+  watchDeviceChanges(win);
+}
+
+// Disk takma/cikarma: yalnizca pencere acikken WM_DEVICECHANGE dinlenir (polling yok).
+// Olaylar birlestirilir; disk baglandiktan sonra harf atanmasi icin kisa bir gecikme beklenir.
+const DEVICE_CHANGE_DELAY_MS = 1500;
+
+function watchDeviceChanges(win) {
+  if (process.platform !== 'win32') return;
+  const coalescer = createCoalescer(async () => {
+    if (win.isDestroyed()) return;
+    try {
+      await refreshDrives();
+      if (!win.isDestroyed()) win.webContents.send(CHANNELS.DRIVES_CHANGED);
+    } catch (err) {
+      console.error(err);
+    }
+  }, DEVICE_CHANGE_DELAY_MS);
+
+  win.hookWindowMessage(WM_DEVICECHANGE, (wParam) => {
+    if (isDriveChangeEvent(wParam)) coalescer.trigger();
+  });
+  win.on('closed', () => coalescer.cancel());
 }
 
 function registerIpc() {
@@ -114,7 +139,17 @@ async function startIndex(event, hwId) {
 }
 
 // Bagli diskleri tarar, DB'ye isler ve guncel listeyi dondurur.
-async function refreshDrives() {
+// Ayni anda tek tarama: elle "Yenile" ile otomatik tarama cakisirsa ayni sonuc paylasilir.
+let refreshInFlight = null;
+
+function refreshDrives() {
+  if (!refreshInFlight) {
+    refreshInFlight = doRefreshDrives().finally(() => { refreshInFlight = null; });
+  }
+  return refreshInFlight;
+}
+
+async function doRefreshDrives() {
   const scanned = await scanDrives();
   const drives = usableDrives(scanned);
   markAllDisconnected(db);
