@@ -26,6 +26,9 @@ const STRINGS = {
     'drives.sub': 'Yalnızca indekslediğin diskler burada görünür.',
     'drives.empty': 'Henüz indekslenen disk yok. “Disk ekle”den başla.',
     'drives.loadFailed': 'Diskler yüklenemedi.',
+    'drives.filterAll': 'Tümü ({n})',
+    'drives.filterConnected': 'Bağlı ({n})',
+    'drives.emptyConnected': 'Şu an bağlı indeksli disk yok. Hepsini görmek için “Tümü”ne geç.',
 
     'add.title': 'Disk ekle',
     'add.sub': 'Bağlı diskler. İndekslemek istediklerini işaretle.',
@@ -103,6 +106,9 @@ const STRINGS = {
     'drives.sub': 'Only the drives you indexed appear here.',
     'drives.empty': 'No indexed drives yet. Start from “Add drive”.',
     'drives.loadFailed': 'Could not load drives.',
+    'drives.filterAll': 'All ({n})',
+    'drives.filterConnected': 'Connected ({n})',
+    'drives.emptyConnected': 'No indexed drive is connected right now. Switch to “All” to see every drive.',
 
     'add.title': 'Add drive',
     'add.sub': 'Connected drives. Tick the ones you want to index.',

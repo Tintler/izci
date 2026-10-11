@@ -44,7 +44,13 @@
       <div id="viewDrives" class="view">
         <div class="page-head">
           <h2 class="page" data-i18n="drives.title">Diskler</h2>
-          <button class="btn icon-only" id="viewToggleDrives" data-i18n-attr="title:view.toCompact,aria-label:view.toCompact"></button>
+          <div class="head-actions">
+            <div class="seg-filter" id="driveFilter" role="group">
+              <button class="seg-btn active" data-filter="all"></button>
+              <button class="seg-btn" data-filter="connected"></button>
+            </div>
+            <button class="btn icon-only" id="viewToggleDrives" data-i18n-attr="title:view.toCompact,aria-label:view.toCompact"></button>
+          </div>
         </div>
         <div class="sub" data-i18n="drives.sub">Yalnızca indekslediğin diskler burada görünür.</div>
         <div class="totals" id="driveTotals"></div>

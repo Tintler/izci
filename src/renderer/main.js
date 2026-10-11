@@ -35,6 +35,7 @@ const browseEmpty = document.getElementById('browseEmpty');
 const driveTotals = document.getElementById('driveTotals');
 const viewToggleDrives = document.getElementById('viewToggleDrives');
 const viewToggleAdd = document.getElementById('viewToggleAdd');
+const driveFilterEl = document.getElementById('driveFilter');
 
 const LANG_KEY = 'izci.lang';
 let lang = resolveLang(localStorage.getItem(LANG_KEY) || DEFAULT_LANG);
@@ -42,6 +43,10 @@ let lang = resolveLang(localStorage.getItem(LANG_KEY) || DEFAULT_LANG);
 // Gorunum modu: 'normal' (acik kartlar) | 'compact' (sade kartlar).
 // Uygulama her acilista Normal baslar (kalici degil).
 let viewMode = 'normal';
+
+// Diskler filtresi: 'all' (tum indeksli diskler) | 'connected' (yalnizca bagli olanlar).
+// Gorunum modu gibi kalici degil; her acilista 'all' baslar.
+let driveFilter = 'all';
 
 // Ceviri kisayolu (aktif dil).
 function tr(key, params) {
@@ -355,10 +360,37 @@ async function refreshAll() {
   ]);
   lastIndexedDrives = indexed;
   lastAllDrives = all;
-  render(driveList, empty, indexed, { inAddView: false });
+  renderIndexedDrives();
   render(allList, emptyAll, all, { inAddView: true });
   renderTotals(indexed);
 }
+
+// Diskler ekranini aktif filtreye gore cizer; filtre butonlarindaki sayilari gunceller.
+function renderIndexedDrives() {
+  const indexed = lastIndexedDrives;
+  const connected = indexed.filter((d) => d.connected);
+  const shown = driveFilter === 'connected' ? connected : indexed;
+  render(driveList, empty, shown, { inAddView: false });
+  // Hic indeksli disk varsa ama filtre bos birakiyorsa farkli mesaj goster.
+  empty.textContent = tr(
+    indexed.length > 0 && shown.length === 0 ? 'drives.emptyConnected' : 'drives.empty',
+  );
+  for (const btn of driveFilterEl.querySelectorAll('.seg-btn')) {
+    const isAll = btn.dataset.filter === 'all';
+    btn.textContent = tr(isAll ? 'drives.filterAll' : 'drives.filterConnected', {
+      n: isAll ? indexed.length : connected.length,
+    });
+    btn.classList.toggle('active', btn.dataset.filter === driveFilter);
+    btn.setAttribute('aria-pressed', String(btn.dataset.filter === driveFilter));
+  }
+}
+
+driveFilterEl.addEventListener('click', (e) => {
+  const btn = e.target.closest('.seg-btn');
+  if (!btn || btn.dataset.filter === driveFilter) return;
+  driveFilter = btn.dataset.filter;
+  renderIndexedDrives();
+});
 
 // Indekslenen disklerin toplam kapasitesi / doluluk / bos alan ozeti.
 function renderTotals(indexed) {

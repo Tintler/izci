@@ -85,6 +85,17 @@ h2.page { margin: 0 0 4px; font-size: 19px; flex-shrink: 0; }
 .page-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .page-head .btn { padding: 5px 12px; font-size: 12px; }
 .btn.icon-only { display: inline-flex; align-items: center; justify-content: center; padding: 6px; }
+.head-actions { display: flex; align-items: center; gap: 8px; }
+.seg-filter {
+  display: inline-flex; gap: 2px; padding: 2px;
+  background: var(--panel); border: 1px solid var(--border); border-radius: 8px;
+}
+.seg-btn {
+  background: transparent; border: 0; color: var(--muted); cursor: pointer;
+  padding: 4px 10px; border-radius: 6px; font-size: 12px;
+}
+.seg-btn:hover { color: var(--text); }
+.seg-btn.active { background: var(--panel-2); color: var(--text); font-weight: 600; }
 .sub { color: var(--muted); font-size: 13px; margin-bottom: 18px; flex-shrink: 0; }
 .totals {
   display: flex; gap: 22px; flex-wrap: wrap; flex-shrink: 0;
